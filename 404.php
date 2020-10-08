@@ -1,0 +1,18 @@
+<?php
+/**
+ * The template for displaying 404 pages (not found)
+ *
+ * @link https://codex.wordpress.org/Creating_an_Error_404_Page
+ *
+ * @package dating
+ */
+
+get_header();
+?>
+
+	<div id="primary" class="content-area">
+		<h1>Hey baby, this page doesn't exist. Sorry...</h1>
+	</div><!-- #primary -->
+
+<?php
+get_footer();

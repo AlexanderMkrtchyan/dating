@@ -1,0 +1,23 @@
+{
+  "name": "socket-chat-example",
+  "version": "1.0.0",
+  "description": "my first socket.io app",
+  "dependencies": {
+    "chart.js": "^2.9.3",
+    "express": "^4.17.1",
+    "express-php-fpm": "^2.0.2",
+    "request": "^2.88.2",
+    "socket.io": "^2.3.0",
+    "winston": "^3.2.1"
+  },
+  "env": {
+    "BUILDPACK_URL": "http://dating/socket/"
+  },
+  "main": "klir.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

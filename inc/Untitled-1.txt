@@ -1,0 +1,1097 @@
+/* 
+Template Name: User Profile
+*/
+get_header();
+
+
+?>
+
+
+<div class="container">
+    <h3>Extra profile information</h3>
+
+    <table class="form-table">
+
+        <tr>
+            <th><label for="twitter">Twitter</label></th>
+            <td>
+                <input type="text" name="twitter" id="twitter" value="<?php echo esc_attr(get_the_author_meta('twitter', $user->ID)); ?>" class="regular-text" /><br />
+                <span class="description">Please enter your Twitter username.</span>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="location">Location</label></th>
+            <td>
+                <input type="text" name="location" id="location" value="<?php echo esc_attr(get_the_author_meta('location', $user->ID)); ?>" class="regular-text" /><br />
+                <span class="description">Please enter your location.</span>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="age">Age</label></th>
+            <td>
+                <input type="text" name="age" id="age" value="<?php echo esc_attr(get_the_author_meta('age', $user->ID)); ?>" class="regular-text" /><br />
+                <span class="description">Please enter your age.</span>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="dropdown">Select your gender</label></th>
+            <td>
+                <?php
+                //get dropdown saved value
+                $selected = get_the_author_meta('gender', $user->ID); //there was an extra ) here that was not needed 
+                ?>
+                <select name="gender" id="gender">
+                    <option value="Man" <?php echo ($selected == "Man") ?  'selected="selected"' : '' ?>>Man</option>
+                    <option value="Woman" <?php echo ($selected == "Woman") ?  'selected="selected"' : '' ?>>Woman</option>
+                </select>
+            </td>
+        </tr>
+        <!-- Uploading image to site -->
+
+
+        <form action="<?php echo get_stylesheet_directory_uri() ?>/process_upload.php" method="post" enctype="multipart/form-data">
+            Your Photo: <input type="file" name="profilepicture" />
+            <input type="submit" name="submit" value="Submit" />
+        </form>
+
+        <?php echo display_images_from_media_library(); ?>
+        <!-- Uploading image to site -->
+
+    </table>
+</div>
+
+
+<?php
+
+function my_show_extra_profile_fields($user)
+{
+    ?>
+
+    <h3>Extra profile information</h3>
+
+    <table class="form-table">
+
+        <tr>
+            <th><label for="twitter">Twitter</label></th>
+            <td>
+                <input type="text" name="twitter" id="twitter" value="<?php echo esc_attr(get_the_author_meta('twitter', $user->ID)); ?>" class="regular-text" /><br />
+                <span class="description">Please enter your Twitter username.</span>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="location">Location</label></th>
+            <td>
+                <input type="text" name="location" id="location" value="<?php echo esc_attr(get_the_author_meta('location', $user->ID)); ?>" class="regular-text" /><br />
+                <span class="description">Please enter your location.</span>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="age">Age</label></th>
+            <td>
+                <input type="text" name="age" id="age" value="<?php echo esc_attr(get_the_author_meta('age', $user->ID)); ?>" class="regular-text" /><br />
+                <span class="description">Please enter your age.</span>
+            </td>
+        </tr>
+        <tr>
+            <th><label for="dropdown">Select your gender</label></th>
+            <td>
+                <?php
+                //get dropdown saved value
+                $selected = get_the_author_meta('gender', $user->ID); //there was an extra ) here that was not needed 
+                ?>
+                <select name="gender" id="gender">
+                    <option value="Man" <?php echo ($selected == "Man") ?  'selected="selected"' : '' ?>>Man</option>
+                    <option value="Woman" <?php echo ($selected == "Woman") ?  'selected="selected"' : '' ?>>Woman</option>
+                </select>
+            </td>
+        </tr>
+        <!-- Uploading image to site -->
+
+
+        <form action="<?php echo get_stylesheet_directory_uri() ?>/process_upload.php" method="post" enctype="multipart/form-data">
+            Your Photo: <input type="file" name="profilepicture" />
+            <input type="submit" name="submit" value="Submit" />
+        </form>
+
+        <?php echo display_images_from_media_library(); ?>
+        <!-- Uploading image to site -->
+
+    </table>
+<?php
+}
+
+
+
+function my_save_extra_profile_fields($user_id)
+{
+
+    if (!current_user_can('edit_user', $user_id))
+        return false;
+
+    /* Copy and paste this line for additional fields. Make sure to change 'twitter' to the field ID. */
+    update_usermeta($user_id, 'twitter', $_POST['twitter']);
+    update_usermeta($user_id, 'location', $_POST['location']);
+    update_usermeta($user_id, 'age', $_POST['age']);
+    update_usermeta($user_id, 'profilepicture', $_POST['profilepicture']);
+
+    update_usermeta($user_id, 'gender', $_POST['gender']);
+}
+
+function get_images_from_media_library()
+{
+    $args = array(
+        'post_type' => 'attachment',
+        'post_mime_type' => 'image/jpeg',
+        'post_status' => 'inherit',
+        'posts_per_page' => 500,
+        'uploaded_by' => 'Valddik VLV',
+        'orderby' => 'rand'
+    );
+    $query_images = new WP_Query($args);
+    $images = array();
+
+    foreach ($query_images->posts as $image) {
+        $images[] = $image->ID;
+    }
+    // var_dump($images);
+    return $images;
+}
+
+function display_images_from_media_library()
+{
+
+    $imgs = get_images_from_media_library();
+    //echo wp_get_attachment_image_src($imgs[0]);
+    $html = '<div id="media-gallery">';
+
+    foreach ($imgs as $img) {
+        $src = wp_get_attachment_image_src($img, 'full');
+        var_dump($src);
+        $html .= '<a href="' .  $src[0] . '"><img src = "' .  $src[0] .    '" alt="" /></a>';
+    }
+
+    $html .= '</div>';
+
+    return $html;
+}
+add_action('show_user_profile', 'my_show_extra_profile_fields');
+add_action('edit_user_profile', 'my_show_extra_profile_fields');
+add_action('personal_options_update', 'my_save_extra_profile_fields');
+add_action('edit_user_profile_update', 'my_save_extra_profile_fields');
+get_footer();
+///////////
+apply_filters( 'the_content', 'media_hacks_the_content' );
+
+
+
+
+
+function custom_base_rules() {
+    global $wp_rewrite;
+
+    $wp_rewrite->page_structure = $wp_rewrite->root . '/%pagename%/%author%/';
+}
+
+add_action( 'init', 'custom_base_rules' );
+
+
+
+|| strtolower($_POST['country']) == strtolower($usersin['city'][0]) || strtolower($_POST['status']) == strtolower($usersin['status'][0]) || strtolower($_POST['city']) == strtolower($usersin['country'][0]) || $_POST['age_from'] < $usersin['twitter'][0] || $usersin['twitter'][0] < $_POST['age_to'] || $_POST['age_to'] = '' || $_POST['age_from'] == ''
+
+
+
+'<div class="incoming_msg">\
+          <div class="incoming_msg_img"> <img src="' + response[i]['profile_link'] + '" alt="alex"> </div>\
+          <div class="received_msg">\
+            <div class="received_withd_msg">\
+              <p>' + response[i]['message'] + '</p>\
+              <span class="time_date">' + response[i]['date'] + '</span>\
+            </div>\
+          </div>\
+        </div>'
+
+
+
+
+
+
+
+        <?php
+
+/**
+ * Template Name: Chat page
+ */
+get_header();
+?>
+
+
+
+<div class="messaging">
+  <div class="inbox_msg">
+    <div class="inbox_people">
+      <div class="headind_srch">
+        <div class="recent_heading">
+          <h4>Recent</h4>
+        </div>
+        <div class="srch_bar">
+          <div class="stylish-input-group">
+            <input type="text" class="search-bar" placeholder="Search">
+          </div>
+        </div>
+      </div>
+      <div class="inbox_chat scroll">
+        <div id="users" class="chat_list active_chat">
+
+        </div>
+
+      </div>
+    </div>
+    <div class="mesgs">
+      <div class="msg_history">
+
+
+      </div>
+      <div class="type_msg">
+        <div class="input_msg_write">
+          <input type="text" class="write_msg" placeholder="Type a message" />
+          <button class="msg_send_btn" type="button"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+<?php
+session_start();
+$user_info = get_userdata(get_current_user_id());
+//$_SESSION['reciever'] = 'test';
+$_SESSION['user'] = $user_info->user_login;
+$_SESSION['profile_link'] = get_user_meta(get_current_user_id(), 'klri_glox')[0];
+$userid = get_current_user_id();
+$cur_user_nickname = get_user_meta($userid, 'nickname');
+?>
+
+<script>
+  $(document).ready(function() {
+    loadChat();
+
+  });
+
+  $('.view_notification').on('click', function() {
+    $.post('<?php echo get_template_directory_uri() . '/inc/chat_ajax.php?action=notification' ?>', function(response) {
+      console.log('clicked');
+    });
+  });
+
+
+  var mesid = [];
+
+
+
+  function loadChat() {
+
+    $('#users').children().on('click', function() {
+      var clss = $(this).attr('class');
+      $('.write_msg').attr('thisclass', clss);
+
+    })
+
+
+    $.ajax({
+      url: '<?php echo get_template_directory_uri() . '/inc/chat_ajax.php?action=getChat' ?>',
+      dataType: 'json',
+      success: function(response) {
+        $.each(response, function() {
+          console.log(response['user'])
+          var res = $('.write_msg').attr('thisclass');
+          for (var i = 0; i < response.length; i++) {
+            if ($('#users').children().hasClass(response[i]['user'])) {
+              $('.' + response[i]['user']).html('<div class="chat_people"><div class="chat_img"> <img src="' + response[i]['profile_link'] + '" alt="alex"> </div><div class="chat_ib"><h5>' + response[i]['user'] + '<span class="chat_date">' + response[i]['date'] + '</h5><p>' + response[i]['message'] + '</p></div></div>');
+
+
+
+              if (response[i]['user'] == res && $.inArray(response[i]['id'], mesid) != -1) {
+                $('.msg_history').append('<div class="incoming_msg"><div class="incoming_msg_img"> <img src="' + response[i]['profile_link'] + '" alt="alex"> </div><div class="received_msg"><div class="received_withd_msg"><p>' + response[i]['message'] + '</p><span class="time_date">' + response[i]['date'] + '</span></div></div></div>');
+              }
+              if (response[i]['reciever'] == '<?php echo $user_info->user_login ?>' && $.inArray(response[i]['id'], mesid) != -1) {
+                $('.msg_history').append('<div class="outgoing_msg"><div class="sent_msg"><p>' + response[i]['message'] + '</p><span class="time_date">' + response[i]['date'] + '</span></div></div>');
+              }
+
+              if ($.inArray(response[i]['id'], mesid) == -1) {
+                mesid.push(response[i]['id']);
+              }
+
+
+
+            } else if (response[i]['reciever'] == '<?php echo $user_info->user_login ?>' || response[i]['user'] == '<?php echo $user_info->user_login ?>') {
+              $('#users').append('<div class="' + response[i]['user'] + '"></div>')
+            }
+          }
+
+        });
+      },
+      error: function(req, status, err) {
+        console.log('Something went wrong', status, err);
+      }
+    });
+  }
+  $('.write_msg').keyup(function(e) {
+
+    var message = $(this).val();
+    var reciever = $(this).attr('thisclass');
+
+    if (e.which == 13) {
+      $.post('<?php echo get_template_directory_uri() . '/inc/chat_ajax.php?action=SendMessage&message=' ?>' + message + '&reciever=' + reciever,
+        function(response) {
+          loadChat();
+          $('.write_msg').val('');
+        });
+
+    }
+  });
+  setInterval(function() {
+    loadChat();
+  }, 2000);
+</script>
+
+<?php
+get_footer();
+
+
+            if (pmpro_hasMembershipLevel('Gold') || pmpro_hasMembershipLevel('Private') || pmpro_hasMembershipLevel('Trial')) {
+
+              
+
+
+
+              
+                                var user = '<?php echo get_user_meta(get_current_user_id(), 'nickname')[0] ?>'
+
+                                d = new Date();
+                                activity = d.toTimeString();
+                                activity = activity.split(' ')[0];
+                                activity = $.now()
+                                //console.log(activity)
+                                var hover_m = 0;
+
+
+                                $.post('<?php echo get_template_directory_uri() . '/inc/chat_ajax.php?action=activity&activity=' ?>' + activity + '&user=' + user, function(response) {});
+
+
+
+
+
+
+
+ <script>
+            var xuya_vo = 0;
+
+            function loadChat() {
+
+                $.ajax({
+                    url: '<?php echo get_template_directory_uri() . '/inc/chat_ajax.php?action=getChat' ?>',
+                    dataType: 'json',
+                    success: function(response) {
+                        //console.log(response[0]['user']);
+                        $.each(response, function() {
+
+                            for (var i = 0; i < response.length; i++) {
+                                if (response[i]['reciever'] == '<?php echo get_user_meta($user_ID, 'nickname')[0] ?>' && response[i]['status'] == 1) {
+                                    if (!$('.my_girls').children().hasClass('bell')) {
+                                        $('.my_girls').append('<span class="bell fa fa-bell"></span>')
+                                    }
+                                } else {
+                                    $('.fa-bell').remove()
+                                }
+                                if (response[i]['now_time'] - $.now() > -180000) {
+                                    // console.log(response[i]['user'])
+
+                                    if (!$('.profile-item #' + response[i]['user']).children().hasClass('online_user')) {
+                                        $('.profile-item #' + response[i]['user']).append('<div class="online_user">Online</div>')
+                                    }
+                                }
+
+                                if (response[i]['user'] == '<?php echo get_user_meta(get_current_user_id(), 'nickname')[0] ?>') {
+                                    xuya_vo++
+                                }
+
+                            }
+
+                        });
+                    },
+                    error: function(req, status, err) {
+                        console.log('Something went wrong', status, err);
+                    }
+                });
+            }
+            setInterval(function() {
+                loadChat();
+            }, 2000);
+            if (xuya_vo == 0) {
+                <?php session_start(); ?>
+                var user = '<?php echo get_user_meta(get_current_user_id(), 'nickname')[0] ?>'
+
+                d = new Date();
+                activity = d.toTimeString();
+                activity = activity.split(' ')[0];
+                activity = $.now()
+                //console.log(activity)
+
+                $.post('<?php echo get_template_directory_uri() . '/inc/chat_ajax.php?action=appear_online&activity=' ?>' + activity + '&user=' + user, function(response) {});
+                xuya_vo++
+            }
+        </script>
+
+
+
+
+
+
+
+
+
+
+        <?php
+
+/**
+ * Template Name: Chat page
+ */
+get_header();
+?>
+
+
+
+<div class="messaging">
+  <div class="inbox_msg">
+    <div class="inbox_people">
+      <div class="inbox_chat">
+        <div id="users" class="chat_list active_chat"></div>
+      </div>
+    </div>
+    <div style="background-color: currentColor;" class="mesgs">
+
+      <div class="type_msg">
+        <div class="input_msg_write">
+          <input readonly type="text" class="write_msg" placeholder="Type a message" />
+          <button class="msg_send_btn" type="button"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <hr>
+      <div class="msg_history"></div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+<?php
+session_start();
+$user_info = get_userdata(get_current_user_id());
+//$_SESSION['reciever'] = 'test';
+$_SESSION['user'] = $user_info->user_login;
+$_SESSION['profile_link'] = 'incha ara inchek uzum?';
+$userid = get_current_user_id();
+$cur_user_nickname = get_user_meta($userid, 'nickname');
+?>
+
+<script>
+  $(document).ready(function() {
+    loadChat();
+  });
+
+  $('.view_notification').on('click', function() {
+    $.post('<?php echo get_template_directory_uri() . '/inc/chat_ajax.php?action=notification' ?>', function(response) {
+      console.log('clicked');
+    });
+  });
+
+
+  var mesid = [];
+
+
+
+
+
+  function loadChat() {
+    console.log($('#users').children().length)
+    if ($(window).width() < 700) {
+      $('.inbox_people').css('width', '100%')
+    }
+    $('#users').children().on('click', function(e) {
+      $('.write_msg').attr('readonly', false)
+      var clss = $(this).attr('class');
+      $(this).css('background-color', '#82b4ce');
+      $(this).siblings().css('background-color', '#e3f1fa')
+      $('.write_msg').attr('thisclass', clss);
+      if ($(window).width() < 700) {
+        $('.inbox_people').children().css('display', 'none')
+        $('.mesgs').css('display', 'block')
+        $('.mesgs').css('width', '100%')
+        if (!$('.mesgs').children().hasClass('chat_persons'))
+          $('.mesgs').prepend('<button class="chat_persons">Back</button>');
+      }
+    });
+    $('.chat_persons').on('click', function() {
+      $('.mesgs').css('display', 'none')
+      $('.inbox_people').children().css('display', 'block')
+      $('.inbox_people').css('width', '100%')
+    })
+
+    $.ajax({
+      url: '<?php echo get_template_directory_uri() . '/inc/chat_ajax.php?action=getChat' ?>',
+      dataType: 'json',
+      success: function(response) {
+        $('.msg_history').empty()
+
+
+        for (var i = 0; i < response.length; i++) {
+
+          var z = 0;
+
+          if (response[i]['user'] == $('.write_msg').attr('thisclass') && response[i]['reciever'] == '<?php echo $user_info->user_login ?>') {
+            $('.msg_history').prepend('<div class="incoming_msg"><div class="incoming_msg_img"> <img src="' + response[i]['profile_link'] + '" alt="' + response[i]['user'] + '"> </div><div class="received_msg"><div class="received_withd_msg"><p>' + response[i]['message'] + '</p><span class="time_date">' + response[i]['date'] + '</span></div></div></div>');
+          }
+          if (response[i]['user'] == '<?php echo $user_info->user_login ?>' && response[i]['reciever'] == $('.write_msg').attr('thisclass')) {
+            $('.msg_history').prepend('<div class="outgoing_msg"><div class="sent_msg"><p>' + response[i]['message'] + '</p><span class="time_date">' + response[i]['date'] + '</span></div></div>');
+          }
+          $('.' + response[i]['user']).html('<div class="chat_people"><div class="chat_img"> <img src="' + response[i]['profile_link'] + '" alt="' + response[i]['user'] + '"> </div><div class="chat_ib"><h5>' + response[i]['user'] + '<span class="chat_date">' + response[i]['date'] + '</h5><p>' + response[i]['message'] + '</p></div></div>');
+          if ($.inArray(response[i]['id'], mesid) == -1) {
+            mesid.push(response[i]['id']);
+          }
+          if (!$('#users').children().hasClass(response[i]['user']) && response[i]['reciever'] == '<?php echo $user_info->user_login ?>') {
+            $('#users').prepend('<div class="' + response[i]['user'] + '"></div>')
+            $('.' + response[i]['user']).html('<div class="chat_people"><div class="chat_img"> <img src="' + response[i]['profile_link'] + '" alt="' + response[i]['user'] + '"> </div><div class="chat_ib"><h5>' + response[i]['user'] + '<span class="chat_date">' + response[i]['date'] + '</h5><p>' + response[i]['message'] + '</p></div></div>');
+          }
+          if (!$('#users').children().hasClass(response[i]['reciever']) && response[i]['user'] == '<?php echo $user_info->user_login ?>') {
+            z++;
+
+            $('#users').prepend('<div class="' + response[i]['reciever'] + '"></div>')
+            $('.' + response[i]['reciever']).html('<div class="chat_people"><div class="chat_img"> <img src="' + response[i]['profile_link'] + '" alt="' + response[i]['reciever'] + '"> </div><div class="chat_ib"><h5>' + response[i]['reciever'] + '<span class="chat_date">' + response[i]['date'] + '</h5><p>' + response[i]['message'] + '</p></div></div>');
+          }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+
+      },
+      error: function(req, status, err) {
+        console.log('Something went wrong', status, err);
+      }
+    });
+  }
+
+  $('.msg_send_btn').on('click', function() {
+
+
+    var message = $('.write_msg').val();
+    var reciever = $('.write_msg').attr('thisclass');
+
+    if (message != '') {
+      $.post('<?php echo get_template_directory_uri() . '/inc/chat_ajax.php?action=SendMessageClick&message=' ?>' + message + '&reciever=' + reciever,
+        function(response) {
+          loadChat();
+          $('.write_msg').val('');
+        });
+    }
+  })
+  $('.write_msg').keyup(function(e) {
+
+    var message = $(this).val();
+    var reciever = $(this).attr('thisclass');
+
+    if (e.which == 13 && message != '') {
+
+      $.post('<?php echo get_template_directory_uri() . '/inc/chat_ajax.php?action=SendMessage&message=' ?>' + message + '&reciever=' + reciever,
+        function(response) {
+          loadChat();
+          $('.write_msg').val('');
+        });
+
+
+    }
+  });
+  setInterval(function() {
+    loadChat();
+  }, 2000);
+</script>
+
+<?php
+get_footer();
+
+
+if (response[i]['now_time'] - $.now() > -180000) {
+
+                                // console.log(response[i]['user'])
+                                var class_or_id = '#' + response[i]['user']
+
+                                if (!$(class_or_id).children().hasClass('online_user')) {
+                                    $(class_or_id).append('<div class="online_user">Online</div>')
+                                }
+                            }
+
+                            if (response[i]['user'] == '<?php echo get_user_meta(get_current_user_id(), 'nickname')[0] ?>') {
+                                xuya_vo++
+                            }
+                            ////////////
+
+
+
+                             if (xuya_vo == 0) {
+            <?php session_start(); ?>
+            var user = '<?php echo get_user_meta(get_current_user_id(), 'nickname')[0] ?>'
+
+            d = new Date();
+            activity = d.toTimeString();
+            activity = activity.split(' ')[0];
+            activity = $.now()
+            //console.log(activity)
+
+            $.post('<?php echo get_template_directory_uri() . '/inc/chat_ajax.php?action=appear_online&activity=' ?>' + activity + '&user=' + user, function(response) {});
+            xuya_vo++
+        }
+
+
+
+
+
+
+        // modified to work with 3 columns
+                            // output an open <div>
+                            if ($i % 3 == 0) { ?>
+
+                            <div class="row">
+
+                            <?php
+                                        }
+                                        ?>
+
+                            <div class="col-md-4">
+                                <div class="my-inner">
+                                    <div class="the_title_of_blog">
+                                        <h1 class="the_title_of_blog"><a href="<?php echo get_permalink($post->ID); ?>"><?php echo get_the_title(); ?></a></h1>
+                                    </div>
+                                    <div class="thumb" style="float:left"><?php echo get_the_post_thumbnail(); ?>
+                                    </div>
+                                    <div class="blog_page_content" style="float:left"><?php echo wp_trim_words(get_the_content(), 10, '...'); ?></div>
+                                </div>
+                            </div>
+
+                            <?php $i++;
+                                        if ($i != 0 && $i % 3 == 0) { ?>
+                            </div>
+                            <!--/.row-->
+                            <div class="clearfix"></div>
+
+                        <?php
+                                    } ?>
+
+                <?php
+
+
+
+
+
+
+
+                $('.gif_send').on('click', function() {
+        // create a FormData object and append all files to it
+        var formData = new FormData();
+        var inputName, file;
+        var urlToPhpFile = '../functions.php';
+        jQuery.each(jQuery('input[type="file"]'), function(index, value) {
+            inputName = jQuery(value).attr('name');
+            file = jQuery(value).prop('files')[0];
+            if (file) {
+                formData.append(inputName, file);
+            }
+            jQuery.ajax(urlToPhpFile, {
+                data: formData,
+                type: 'post',
+                processData: false,
+                contentType: false
+            }).fail(function(errObj, errText, errThrown) {
+                alert('Error!');
+            }).done(function(data) {
+                if (data.status == 0) {
+                    alert('Success!');
+                } else {
+                    alert('Failed!');
+                }
+            });
+        });
+    })
+
+
+
+
+
+
+
+    alert('this is filename - ' + fileName)
+        // we need to upload "File" --- not "Blob"
+        var fileObject = new File([blob], fileName, {
+            type: 'mpeg/gif'
+        });
+        console.log(fileObject)
+
+
+
+
+
+
+        var formData = new FormData();
+        // recorded data
+        formData.append('video-blob', fileObject);
+        // file name
+        formData.append('video-filename', fileObject.name);
+        formData.append('action', 'handle_attachment' )
+        var upload_url = '/wp-content/themes/dating/inc/ajax_upload_test.php';
+        // var upload_url = 'RecordRTC-to-PHP/save.php';
+        // var upload_directory = 'RecordRTC-to-PHP/uploads/';
+        // upload using jQuery
+        $.ajax({
+            type: 'POST',
+            url: upload_url, // replace with your own server URL
+
+                data: formData,
+
+
+            success: function(response) {
+                if (response === 'success') {
+                    alert('successfully uploaded recorded blob');
+                } else {
+                    alert(response); // error/failure
+                }
+            }
+        });
+
+
+
+
+
+
+////////////////////////////////  BLOG SECTION  /////////////////////////////////
+
+<section class="blog_section">
+    <div style="background: bisque;" class="blog_section">
+
+        <div class="container" style="text-align: center; ">
+            <h2 style="color: black" class="title divider mb-3 text-shadow my_blogs">My blogs</h2>
+
+            <div class="pl_login">Please login</div>
+        </div>
+
+        <?php if (is_user_logged_in()) { ?>
+            <div class="flex-container">
+                <?php if (get_user_meta(get_current_user_id(), 'gender')[0] == 'Male') : ?>
+                    <div class="page-section-ptb grey-bg blogs_for_men animated fadeInRight log_boys flex-div">
+                        <div class="container">
+                            <div class="row justify-content-center mb-5 sm-mb-2">
+                                <div class="col-md-10 text-center">
+                                    <h2 style="text-shadow: 3px 3px #f73af9;width: 100%; text-align: center;">Blogs for Men</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container my-container">
+                            <?php
+                                    $args = array(
+                                        'post_type' => 'mens_world',
+                                        'post_status' => 'publish',
+                                        'posts_per_page' => 4
+                                    );
+
+                                    $my_query = null;
+                                    $my_query = new WP_Query($args);
+
+                                    if ($my_query->have_posts()) {
+
+                                        $i = 0;
+                                        while ($my_query->have_posts()) : $my_query->the_post();
+
+                                            // modified to work with 3 columns
+                                            // output an open <div>
+                                            if ($i % 2 == 0) { ?>
+                                        <div class="row">
+                                        <?php } ?>
+
+                                        <div style="margin: 10px 0;" class="col-md-6 ">
+                                            <div class="gradient-border" id="box">
+                                                <div class="my-inner">
+
+                                                    <div class="the_title_of_blog">
+                                                        <h1 class="the_title_of_blog"><a href="<?php echo get_permalink($post->ID); ?>"><?php echo get_the_title(); ?></a></h1>
+                                                    </div>
+                                                    <div class="front_end_blog_image" style="float:left"><?php echo get_the_post_thumbnail(); ?>
+                                                    </div>
+                                                    <div class="blog_page_content animated flash"><?php echo wp_trim_words(get_the_content(), 50, '...'); ?></div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <?php $i++;
+                                                        if ($i != 0 && $i % 2 == 0) { ?>
+                                        </div>
+                                        <!--/.row-->
+                                        <div class="clearfix"></div>
+
+                                    <?php } ?>
+
+                            <?php
+                                        endwhile;
+                                    }
+                                    wp_reset_query();
+                                    ?>
+
+
+
+                        </div>
+
+
+                    </div>
+
+                <?php endif; ?>
+                <?php if (get_user_meta(get_current_user_id(), 'gender')[0] == 'Female') : ?>
+                    <div class="page-section-ptb grey-bg blogs_for_girls animated fadeInRight log_girls flex-div">
+                        <div class="container">
+                            <div class="row justify-content-center mb-5 sm-mb-2">
+                                <div class="col-md-10 text-center">
+                                    <h2 style="text-shadow: 3px 3px #f73af9;width: 100%; text-align: center;">Blogs for Women</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container my-container">
+                            <?php
+                                    $args = array(
+                                        'post_type' => 'girls_blog',
+                                        'post_status' => 'publish',
+                                        'posts_per_page' => 4
+                                    );
+
+                                    $my_query = null;
+                                    $my_query = new WP_Query($args);
+
+                                    if ($my_query->have_posts()) {
+
+                                        $i = 0;
+                                        while ($my_query->have_posts()) : $my_query->the_post();
+
+                                            // modified to work with 3 columns
+                                            // output an open <div>
+                                            if ($i % 2 == 0) { ?>
+                                        <div class="row">
+                                        <?php } ?>
+
+                                        <div style="margin: 10px 0;" class="col-md-6 ">
+                                            <div class="gradient-border" id="box">
+                                                <div class="my-inner">
+
+                                                    <div class="the_title_of_blog">
+                                                        <h1 class="the_title_of_blog"><a href="<?php echo get_permalink($post->ID); ?>"><?php echo get_the_title(); ?></a></h1>
+                                                    </div>
+                                                    <div class="front_end_blog_image" style="float:left"><?php echo get_the_post_thumbnail(); ?>
+                                                    </div>
+                                                    <div class="blog_page_content animated flash"><?php echo wp_trim_words(get_the_content(), 50, '...'); ?></div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                        <?php $i++;
+                                                        if ($i != 0 && $i % 2 == 0) { ?>
+                                        </div>
+                                        <!--/.row-->
+                                        <div class="clearfix"></div>
+
+                                    <?php } ?>
+
+                            <?php
+                                        endwhile;
+                                    }
+                                    wp_reset_query();
+                                    ?>
+
+
+
+                        </div>
+
+
+                    </div>
+
+                <?php endif; ?>
+                <div class="page-section-ptb grey-bg blogs_for_couples animated log_couples fadeInUp flex-div">
+
+                    <div class="container">
+                        <div class="row justify-content-center mb-5 sm-mb-2">
+                            <div class="col-md-10 text-center">
+                                <h2 style="text-shadow: 3px 3px white;width: 100%; text-align: center;">Blogs For Couples</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container my-container">
+                        <?php
+                            $args = array(
+                                'post_type' => 'couple_blog',
+                                'post_status' => 'publish',
+                                'posts_per_page' => 4
+                            );
+
+                            $my_query = null;
+                            $my_query = new WP_Query($args);
+
+                            if ($my_query->have_posts()) {
+
+                                $i = 0;
+                                while ($my_query->have_posts()) : $my_query->the_post();
+
+                                    // modified to work with 3 columns
+                                    // output an open <div>
+                                    if ($i % 2 == 0) { ?>
+                                    <div class="row">
+                                    <?php } ?>
+
+                                    <div style="margin: 10px 0;" class="col-md-6 ">
+                                        <div class="gradient-border" id="box">
+                                            <div class="my-inner">
+
+                                                <div class="the_title_of_blog">
+                                                    <h1 class="the_title_of_blog"><a href="<?php echo get_permalink($post->ID); ?>"><?php echo get_the_title(); ?></a></h1>
+                                                </div>
+                                                <div class="front_end_blog_image" style="float:left"><?php echo get_the_post_thumbnail(); ?>
+                                                </div>
+                                                <div class="blog_page_content animated flash"><?php echo wp_trim_words(get_the_content(), 50, '...'); ?></div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <?php $i++;
+                                                if ($i != 0 && $i % 2 == 0) { ?>
+                                    </div>
+                                    <!--/.row-->
+                                    <div class="clearfix"></div>
+
+                                <?php } ?>
+
+                        <?php
+                                endwhile;
+                            }
+                            wp_reset_query();
+                            ?>
+
+
+
+                    </div>
+
+
+                </div>
+            </div>
+        <?php } else { ?>
+            <div class="not_logged_in_blog">
+                <div class="row">
+                    <div class="col-md-4 flex-container log_boys">
+                        <h2 style="text-shadow: 3px 3px #f73af9;width: 100%; text-align: center;">Blogs for Men</h2>
+                        <div class="row">
+                            <div class="inner_content_blog ">
+                                <div style="margin: 10px 0;" class="">
+                                    <div class="gradient-border" id="box">
+                                        <div class="my-inner">
+                                            <div class="the_title_of_blog">
+                                                <h1 class="the_title_of_blog"><a href="#">Dummy title</a></h1>
+                                            </div>
+                                            <img class="front_end_blog_image" src="<?php echo get_template_directory_uri() . '/assets/images/cars_front_page.jpg' ?>" alt="thumbnail">
+
+                                            <div class="blog_page_content animated flash">On the homepage, ANYONE can access these icons since they link only to descriptions of the blogs. They do NOT need to LogIn first. They are to entice people to JOIN by showing what the website offers… not just a place to hook up, but a place to spend time and develop themselves, and develop the relationship.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-4 flex-container log_couples">
+                        <h2 style="text-shadow: 3px 3px white;width: 100%; text-align: center;">Blogs for Couples</h2>
+                        <div class="row">
+
+                            <div class="inner_content_blog ">
+                                <div style="margin: 10px 0;" class="">
+                                    <div class="gradient-border" id="box">
+                                        <div class="my-inner">
+                                            <div class="the_title_of_blog">
+                                                <h1 class="the_title_of_blog"><a href="#">Dummy title</a></h1>
+                                            </div>
+                                            <img class="front_end_blog_image" src="<?php echo get_template_directory_uri() . '/assets/images/couples_front_page.jpg' ?>" alt="thumbnail">
+                                            <div class="blog_page_content animated flash">On the homepage, ANYONE can access these icons since they link only to descriptions of the blogs. They do NOT need to LogIn first. They are to entice people to JOIN by showing what the website offers… not just a place to hook up, but a place to spend time and develop themselves, and develop the relationship.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-4 flex-container log_girls">
+                        <h2 style="text-shadow: 3px 3px rgb(38, 168, 254);width: 100%; text-align: center;">Blogs for Women</h2>
+                        <div class="row">
+
+                            <div class="inner_content_blog ">
+                                <div style="margin: 10px 0;" class="">
+                                    <div class="gradient-border" id="box">
+                                        <div class="my-inner">
+                                            <div class="the_title_of_blog">
+                                                <h1 class="the_title_of_blog"><a href="#">Dummy title</a></h1>
+                                            </div>
+                                            <img class="front_end_blog_image" src="<?php echo get_template_directory_uri() . '/assets/images/girls_front_page.jpg' ?>" alt="thumbnail">
+                                            <div class="blog_page_content animated flash">On the homepage, ANYONE can access these icons since they link only to descriptions of the blogs. They do NOT need to LogIn first. They are to entice people to JOIN by showing what the website offers… not just a place to hook up, but a place to spend time and develop themselves, and develop the relationship.</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                </div>
+            </div>
+        <?php } ?>
+</section>
+
+
+
+
+
+
+
+////////// GOOGLE API KEY ////////////////
+AIzaSyB5o777yiMmfBl59NtpCyONNPiJYqP_yAY
+////////// GOOGLE API KEY ////////////////

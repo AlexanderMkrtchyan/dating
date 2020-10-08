@@ -1,0 +1,157 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    
+    <title>Socket app</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font: 13px Helvetica, Arial;
+        }
+
+        form {
+            background: #000;
+            padding: 3px;
+            position: fixed;
+            bottom: 0;
+            width: 60%;
+        }
+
+        form input {
+            border: 0;
+            padding: 10px;
+            width: 90%;
+            margin-right: .5%;
+        }
+
+        form button {
+            width: 9%;
+            background: rgb(130, 224, 255);
+            border: none;
+            padding: 10px;
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages li {
+            padding: 5px 10px;
+        }
+
+        #messages li:nth-child(odd) {
+            background: #eee;
+        }
+
+        .typing {
+            display: none;
+        }
+
+        .klir {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            z-index: 100;
+            background-color: aqua;
+        }
+
+        .name_input {
+            width: auto;
+        }
+
+        .online_users {
+            width: 40%;
+            float: right;
+            cursor: pointer;
+            font-size: medium;
+            border: 1px solid;
+            text-align: center;
+        }
+    </style>
+</head>
+<script
+src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8="
+crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+
+<body>
+
+    <body>
+        <div class="name_submit">
+            <form action="" class="klir">
+                <label for="name_input">Type your name please</label>
+                <input type="text" class="name_input"><button class="puc">Send</button>
+            </form>
+        </div>
+        <div class="users_interation">
+            <ul id="messages"></ul>
+            <ul class="typing"></ul>
+            <form action="">
+                <input id="m" autocomplete="off" /><button>Send</button>
+            </form>
+        </div>
+        <div class="online_users"></div>
+        <script>
+            
+
+            $(function () {
+                var socket = io()
+
+
+                $('form').submit(function (e) {
+                    e.preventDefault(); // prevents page reloading
+                    socket.emit('chat message', $('#m').val());
+                    $('#m').val('');
+
+                    return false;
+                });
+                $('.klir').submit(function (e) {
+                    e.preventDefault();
+                    socket.emit('user name', $('.name_input').val());
+                    $('.name_submit').css('display', 'none')
+                    $('.typing').css('display', 'none')
+                })
+
+                socket.on('user name', function (e) {
+                   // console.log(e.users)
+                    $.each(e.users, function (key, value) {
+                       console.log(value.name)
+                    });
+                    
+                })
+
+                socket.on('chat message', function (msg) {
+                    $('#messages').append($('<li>').text(msg));
+                });
+                socket.on('typing', function (nm) {
+                    console.log(nm)
+                    $('.typing').html(nm + ' is typing now')
+                })
+
+                var searchTimeout;
+                $('#m').on('keypress', function () {
+                    if (searchTimeout != undefined) clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(callServerScript, 250);
+                });
+                function callServerScript() {
+                    // your code here
+                    socket.emit('typing', $('.name_input').val())
+                }
+            });
+        </script>
+       
+    </body>
+
+</html>
